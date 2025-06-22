@@ -1,4 +1,4 @@
-# File: worker.py
+# File: worker_log.py
 import boto3
 import os
 import subprocess
