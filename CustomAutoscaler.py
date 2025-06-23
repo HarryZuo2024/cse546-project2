@@ -1,4 +1,4 @@
-# File: CustomAutoscaler.py v3.0
+# File: CustomAutoscaler.py v2.0
 import boto3
 import time
 import logging
@@ -13,6 +13,8 @@ logger = logging.getLogger(__name__)
 
 # 配置参数
 AWS_REGION = 'us-east-1'
+# 移除 AMI_ID，因为使用启动模板
+# AMI_ID = 'ami-0e04c49cf2e6c89cc'
 INSTANCE_TYPE = 't2.micro'
 KEY_NAME = 'cse546-project2-image-recognition-key'
 SECURITY_GROUP_IDS = ['sg-003f2d13ff90e67aa']
@@ -20,8 +22,7 @@ IAM_ROLE_NAME = 'AppInstanceRole'  # IAM 角色名称
 SQS_QUEUE_URL = 'https://sqs.us-east-1.amazonaws.com/257288819129/request-queue'
 
 # 启动模板信息
-LAUNCH_TEMPLATE_ID = 'lt-02e49dd08c7ea928f'
-LAUNCH_TEMPLATE_NAME = 'app-tier-template'
+LAUNCH_TEMPLATE_ID = 'lt-03727f3e66976187d'
 
 # 伸缩配置
 MIN_INSTANCES = 0
@@ -73,12 +74,13 @@ def get_running_instances():
     try:
         response = ec2.describe_instances(
             Filters=[
-                # 不再需要 AMI ID 过滤
+                # 移除 image-id 过滤，因为使用启动模板
+                # {'Name': 'image-id', 'Values': [AMI_ID]},
                 {'Name': 'instance-state-name', 'Values': ['running', 'pending']},
                 {'Name': 'tag:ManagedBy', 'Values': ['CustomAutoscaler']}
             ]
         )
-        
+
         instances = []
         for reservation in response['Reservations']:
             for instance in reservation['Instances']:
@@ -87,7 +89,7 @@ def get_running_instances():
                     'LaunchTime': instance['LaunchTime'],
                     'State': instance['State']['Name']
                 })
-        
+
         return instances
     except Exception as e:
         logger.error(f"获取运行中实例失败: {str(e)}")
@@ -101,22 +103,21 @@ def create_ec2_instance():
         instance_name = f"{TAGS['Name']}-{timestamp}"
         tags = TAGS.copy()
         tags['Name'] = instance_name
-        
+
         response = ec2.run_instances(
-            # 使用启动模板
+            # 只使用启动模板 ID
             LaunchTemplate={
-                'LaunchTemplateId': LAUNCH_TEMPLATE_ID,
-                'LaunchTemplateName': LAUNCH_TEMPLATE_NAME
+                'LaunchTemplateId': LAUNCH_TEMPLATE_ID
             },
             MinCount=1,
             MaxCount=1,
-            # UserData=USER_DATA,  
+            # UserData=USER_DATA, 启动模板可能已包含 UserData
             TagSpecifications=[{
                 'ResourceType': 'instance',
                 'Tags': format_tags(tags)
             }]
         )
-        
+
         instance_id = response['Instances'][0]['InstanceId']
         logger.info(f"创建新实例: {instance_id}")
         return instance_id
@@ -137,16 +138,16 @@ def terminate_instance(instance_id):
 # 主函数
 def main():
     last_scaling_time = 0
-    
+
     logger.info("自动伸缩器启动，开始监控队列...")
-    
+
     while True:
         try:
             # 获取队列深度和当前实例数
             queue_depth = get_queue_depth()
             running_instances = get_running_instances()
             current_instance_count = len(running_instances)
-            
+
             # 计算所需实例数
             required_instances = min(
                 MAX_INSTANCES,
@@ -155,25 +156,25 @@ def main():
                     (queue_depth + TARGET_MESSAGES_PER_WORKER - 1) // TARGET_MESSAGES_PER_WORKER
                 )
             )
-            logger.info(f"队列深度: {queue_depth}, 当前实例数: {current_instance_count}, 所需实例数: {required_instances}")    
+            logger.info(f"队列深度: {queue_depth}, 当前实例数: {current_instance_count}, 所需实例数: {required_instances}")
             current_time = time.time()
-            
+
             # 检查是否需要扩容
             # if required_instances > current_instance_count and queue_depth >= SCALE_UP_THRESHOLD:
             if required_instances > current_instance_count:
-                
+
                 # if current_time - last_scaling_time < COOLDOWN:
                 #     logger.info(f"处于冷却期，跳过扩容")
                 # else:
-                    instances_to_add = required_instances - current_instance_count
-                    logger.info(f"需要扩容，添加 {instances_to_add} 个实例")
-                    
-                    for _ in range(instances_to_add):
-                        instance_id = create_ec2_instance()
-                        if instance_id:
-                            last_scaling_time = current_time
-            
-            
+                instances_to_add = required_instances - current_instance_count
+                logger.info(f"需要扩容，添加 {instances_to_add} 个实例")
+
+                for _ in range(instances_to_add):
+                    instance_id = create_ec2_instance()
+                    if instance_id:
+                        last_scaling_time = current_time
+
+
             # 检查是否需要缩容
             # elif required_instances < current_instance_count and queue_depth < SCALE_DOWN_THRESHOLD:
             elif required_instances < current_instance_count:
@@ -182,18 +183,18 @@ def main():
                 else:
                     instances_to_remove = current_instance_count - required_instances
                     logger.info(f"需要缩容，移除 {instances_to_remove} 个实例")
-                    
+
                     # 按启动时间排序，先终止最早的实例
                     running_instances.sort(key=lambda x: x['LaunchTime'])
-                    
+
                     for i in range(instances_to_remove):
                         instance_id = running_instances[i]['InstanceId']
                         if terminate_instance(instance_id):
                             last_scaling_time = current_time
-            
+
             # 休眠
             time.sleep(CHECK_INTERVAL)
-            
+
         except Exception as e:
             logger.error(f"自动伸缩器运行错误: {str(e)}")
             time.sleep(CHECK_INTERVAL)
