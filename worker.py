@@ -45,7 +45,7 @@ def process_image(filename):
         # 保存结果到输出桶
         s3.put_object(
             Bucket=OUTPUT_BUCKET,
-            Body=f'{filename},{classification.encode('utf-8')}',
+            Body=f'{filename},{classification}',
             # 将filenam扩展名修改为.csv
             Key=os.path.splitext(filename)[0] + '.csv'
         )
