@@ -1,4 +1,4 @@
-# File: worker.py v3.0 (优化版)
+# File: worker.py v4.0 s3 out save as csv file.
 import boto3
 import os
 import subprocess
@@ -45,8 +45,9 @@ def process_image(filename):
         # 保存结果到输出桶
         s3.put_object(
             Bucket=OUTPUT_BUCKET,
-            Key=filename,
-            Body=classification.encode('utf-8')
+            Body=f'{filename},{classification.encode('utf-8')}',
+            # 将filenam扩展名修改为.csv
+            Key=os.path.splitext(filename)[0] + '.csv'
         )
         logger.debug(f"结果已保存到S3: {OUTPUT_BUCKET}/{filename}")
 
