@@ -1,12 +1,12 @@
 # File: web_server.py version 1.0 release 2025-06-25 by Wenguang Zuo
-
+# wget https://raw.githubusercontent.com/HarryZuo2024/cse546-project2/refs/heads/main/web/web_server.py
 from collections import defaultdict
 from threading import RLock
 import threading
 import time
 import logging
 import json
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 import boto3
 from botocore.config import Config
 import uuid
@@ -57,11 +57,12 @@ REQUEST_QUEUE_URL = 'https://sqs.us-east-1.amazonaws.com/257288819129/request-qu
 RESPONSE_QUEUE_URL = 'https://sqs.us-east-1.amazonaws.com/257288819129/response-queue'
 
 # 性能优化参数
-POLLING_INTERVAL = 0.5
-SQS_MAX_MESSAGES = 10
-CLEANUP_INTERVAL = 300
-REQUEST_TIMEOUT = 360
+POLLING_INTERVAL = 0.5  # 轮询间隔
+SQS_MAX_MESSAGES = 10  # 最大消息数
+CLEANUP_INTERVAL = 300  # 清理间隔
+REQUEST_TIMEOUT = 360  # 请求超时时间
 LONG_POLL_TIMEOUT = 300  # 长轮询超时时间(秒)
+INITIAL_POLLING_DELAY = 10  # 初始延迟时间（秒）
 
 app = Flask(__name__)
 
@@ -124,11 +125,7 @@ def process_request_status(request_id, poll_timeout=LONG_POLL_TIMEOUT):
     
     # 构建并返回标准化响应
     if record['status'] == 'completed':
-        return jsonify({
-            'request_id': request_id,
-            'status': 'completed',
-            'result': record['result']
-        }), 200
+        return Response(record['result'], content_type='text/plain'), 200
     else:
         return jsonify({
             'request_id': request_id,
@@ -187,6 +184,11 @@ def upload_file():
         'timestamp': time.time(),
         'result': None
     }
+
+    # 添加初始延迟（让worker有时间处理）
+    logger.debug(f"等待 {INITIAL_POLLING_DELAY} 秒后开始轮询结果")
+    time.sleep(INITIAL_POLLING_DELAY)
+        
     # 获取长轮询超时参数
     poll_timeout = int(request.args.get('timeout', LONG_POLL_TIMEOUT))
     # 使用公共函数处理状态响应

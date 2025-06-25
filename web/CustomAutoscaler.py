@@ -1,4 +1,5 @@
-# File: CustomAutoscaler.py v3.0 no user data 
+# File: CustomAutoscaler.py version 1.0 release 2025-06-25 by Wenguang Zuo
+# wget https://raw.githubusercontent.com/HarryZuo2024/cse546-project2/refs/heads/main/web/CustomAutoscaler.py
 import boto3
 import time
 import logging
@@ -23,10 +24,10 @@ SQS_QUEUE_URL = 'https://sqs.us-east-1.amazonaws.com/257288819129/request-queue'
 # 伸缩配置
 MIN_INSTANCES = 0
 MAX_INSTANCES = 15
-TARGET_MESSAGES_PER_WORKER = 5
+TARGET_MESSAGES_PER_WORKER = 1
 SCALE_UP_THRESHOLD = 1
 SCALE_DOWN_THRESHOLD = 0
-COOLDOWN = 180  # 冷却时间(秒)
+COOLDOWN = 210  # 冷却时间(秒)
 CHECK_INTERVAL = 10  # 检查间隔(秒)
 
 # 标签配置
