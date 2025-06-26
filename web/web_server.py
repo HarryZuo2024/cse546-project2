@@ -333,6 +333,8 @@ def cleanup_expired_records():
     logger.info("请求记录清理线程停止")
 
 if __name__ == '__main__':
+
+    logger.info("File: web_server.py version 1.0 release 2025-06-25 by Wenguang Zuo")
     # 启动后台线程
     sqs_processor = threading.Thread(target=process_sqs_messages, daemon=True)
     cleaner = threading.Thread(target=cleanup_expired_records, daemon=True)
