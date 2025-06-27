@@ -1,4 +1,5 @@
-# File: worker.py v4.0 s3 out save as csv file.
+# File: worker.py version 1.0 release 2025-06-25 by Wenguang Zuo
+# wget https://raw.githubusercontent.com/HarryZuo2024/cse546-project2/refs/heads/main/classifier/worker.py
 import boto3
 import os
 import subprocess
