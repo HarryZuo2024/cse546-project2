@@ -1,0 +1,13 @@
+{
+    "AWS_REGION": "us-east-1",
+    "INPUT_BUCKET": "project2-input-bucket-abc",
+    "OUTPUT_BUCKET": "project2-output-bucket-xyz",
+    "REQUEST_QUEUE_URL": "https://sqs.us-east-1.amazonaws.com/257288819129/request-queue",
+    "RESPONSE_QUEUE_URL": "https://sqs.us-east-1.amazonaws.com/257288819129/response-queue",
+    "POLLING_INTERVAL": 0.5,
+    "SQS_MAX_MESSAGES": 10,
+    "CLEANUP_INTERVAL": 300,
+    "REQUEST_TIMEOUT": 360,
+    "LONG_POLL_TIMEOUT": 300,
+    "INITIAL_POLLING_DELAY": 10
+}

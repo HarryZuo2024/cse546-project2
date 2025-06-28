@@ -1,0 +1,23 @@
+{
+    "AWS_REGION": "us-east-1",
+    "AMI_ID": "ami-0e9ee3f293fffd591",
+    "INSTANCE_TYPE": "t2.micro",
+    "KEY_NAME": "cse546-project2-image-recognition-key",
+    "SECURITY_GROUP_IDS": ["sg-003f2d13ff90e67aa"],
+    "IAM_ROLE_NAME": "AppInstanceRole",
+    "SQS_QUEUE_URL": "https://sqs.us-east-1.amazonaws.com/257288819129/request-queue",
+    "MIN_INSTANCES": 0,
+    "MAX_INSTANCES": 15,
+    "TARGET_MESSAGES_PER_WORKER": 3,
+    "SCALE_UP_THRESHOLD": 1,
+    "SCALE_DOWN_THRESHOLD": 0,
+    "COOLDOWN": 120,
+    "CHECK_INTERVAL": 10,
+    "TAGS": {
+        "Name": "app-instance",
+        "Environment": "Development",
+        "Project": "CSE546-Project2",
+        "ManagedBy": "CustomAutoscaler"
+    },
+    "USER_DATA": "#!/bin/bash"
+}
