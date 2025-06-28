@@ -1,6 +1,6 @@
 # File: custom_autoscaler.py version 2.0 release 2025-06-28 by Wenguang Zuo
 # wget https://raw.githubusercontent.com/HarryZuo2024/cse546-project2/refs/heads/main/web/custom_autoscaler.py
-# Wget https://raw.githubusercontent.com/HarryZuo2024/cse546-project2/refs/heads/main/web/custom_autoscaler_config.json
+# wget https://raw.githubusercontent.com/HarryZuo2024/cse546-project2/refs/heads/main/web/custom_autoscaler_config.json
 
 import boto3
 import time

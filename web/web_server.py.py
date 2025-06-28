@@ -1,6 +1,6 @@
 # File: web_server.py version 2.0 release 2025-06-28 by Wenguang Zuo
 # wget https://raw.githubusercontent.com/HarryZuo2024/cse546-project2/refs/heads/main/web/web_server.py
-# Wget https://raw.githubusercontent.com/HarryZuo2024/cse546-project2/refs/heads/main/web/web_server_config.json
+# wget https://raw.githubusercontent.com/HarryZuo2024/cse546-project2/refs/heads/main/web/web_server_config.json
 
 from collections import defaultdict, UserDict
 from threading import RLock
