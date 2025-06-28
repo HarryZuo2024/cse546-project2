@@ -1,6 +1,6 @@
 # File: worker.py version 2.0 release 2025-06-28 by Wenguang Zuo
 # wget https://raw.githubusercontent.com/HarryZuo2024/cse546-project2/refs/heads/main/classifier/worker.py
-# weet https://raw.githubusercontent.com/HarryZuo2024/cse546-project2/refs/heads/main/classifier/worker_config.json
+# wget https://raw.githubusercontent.com/HarryZuo2024/cse546-project2/refs/heads/main/classifier/worker_config.json
 
 import boto3
 import os
